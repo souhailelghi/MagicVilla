@@ -53,15 +53,24 @@ namespace MagicVilla_VillaAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<VillaDto> CreateVilla([FromBody]VillaDto villaDto)
         {
             //validation of data model : like name is  [Required] 
-            //if(!ModelState.IsValid)
+            //if (!ModelState.IsValid)
             //{
             //    return BadRequest(ModelState);
             //}
-            if(villaDto == null)
+
+            //custom validation : 
+            if(VillaStore.villaList.FirstOrDefault(u=>u.Name.ToLower()==villaDto.Name.ToLower())!=null)
+            {
+                ModelState.AddModelError("CustomError", "Villa Already Exists");
+                return BadRequest(ModelState);
+            }
+
+
+            if (villaDto == null)
             {
                 return BadRequest(villaDto);
             }
