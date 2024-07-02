@@ -85,9 +85,21 @@ namespace MagicVilla_VillaAPI.Controllers
             return  CreatedAtAction(nameof(GetVillaById), new { id = villaDto.Id }, villaDto);
 
         }
-         
 
 
+        //Method Delete
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteVilla(int id)
+        {
+            if(id==0)
+            {
+                return BadRequest();
+            }
+
+            var Villa = VillaStore.villaList.FirstOrDefault(v => v.Id == id);
+            VillaStore.villaList.Remove(Villa);
+            return NoContent();
+        }
 
     }
 }
