@@ -3,16 +3,19 @@ using MagicVilla_VillaAPI.Model;
 using MagicVilla_VillaAPI.Models.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
     //[Route("api/[controller]")]
     [Route("api/VillaAPI")]
-    [ApiController]
+    [ApiController] // for api to active the notations like :  [key] ,  [Required] ,   [MaxLength(30)]
+
     public class VillaAPIController : ControllerBase
     {
         // get all villas 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDto>>  GetVillas()
         {
             return Ok(VillaStore.villaList);
@@ -20,10 +23,13 @@ namespace MagicVilla_VillaAPI.Controllers
 
         //GET Villa by id : 
 
-        [HttpGet("{id:int}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
+        [HttpGet("{id:int}" )]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(404)]
+        //[ProducesResponseType(400)]
         public ActionResult<VillaDto> GetVillaById(int id)
         {
             if(id ==0)
@@ -41,8 +47,33 @@ namespace MagicVilla_VillaAPI.Controllers
 
             return Ok(villa);
         }
+
+
+        //create a villa 
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<VillaDto> CreateVilla([FromBody]VillaDto villaDto)
+        {
+            if(villaDto == null)
+            {
+                return BadRequest(villaDto);
+            }
+            if(villaDto.Id > 0)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            villaDto.Id = VillaStore.villaList.OrderByDescending(v => v.Id).FirstOrDefault().Id + 1;
+            VillaStore.villaList.Add(villaDto);
+
+            return  CreatedAtAction(nameof(GetVillaById), new { id = villaDto.Id }, villaDto);
+
+        }
          
-        
+
+
 
     }
 }
